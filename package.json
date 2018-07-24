@@ -1,0 +1,28 @@
+{
+  "name": "mongomobileshop",
+  "version": "1.0.0",
+  "description": "mongodb database for mobileshop",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/banjac275/mongoMobileShop.git"
+  },
+  "author": "banjac275",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/banjac275/mongoMobileShop/issues"
+  },
+  "homepage": "https://github.com/banjac275/mongoMobileShop#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "node-router": "^0.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.3"
+  }
+}
