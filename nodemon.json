@@ -1,5 +1,6 @@
 {
   "env": {
-    "MONGO_ATLAS_PW": "randombanji"
+    "MONGO_ATLAS_PW": "randombanji",
+    "JWT_KEY": "kljuchka"
   }
 }

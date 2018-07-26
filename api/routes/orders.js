@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const checkAuth = require('../middleware/check-auth');
 
 const Order = require('../models/order');
 const Product = require('../models/product');
+const User = require('../models/user');
 
 router.get('/', (req, res, next) => {
     Order.find()
@@ -25,7 +27,7 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
     Product.findById(req.body.productId)
     .then(product => {
         const order = new Order({
@@ -38,14 +40,13 @@ router.post('/', (req, res, next) => {
     })    
     .then(result => {
         console.log(result);
+        return User.update({_id: result.userId}, { $push: { "orders": result._id } })
+        .exec()
+    })
+    .then(resp => {
+        console.log(resp);
         res.status(201).json({
-            message: 'Created new entry for /orders',
-            createdProduct: {
-                _id: result._id,
-                productId: result.productId,
-                userId: result.userId,
-                quantity: result.quantity
-            }
+            message: 'Created new entry for /orders'
         });
     })
     .catch(err => {
@@ -56,7 +57,7 @@ router.post('/', (req, res, next) => {
     });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Order.findById(id)
     .exec()
@@ -75,7 +76,7 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-router.patch('/:id', (req, res, next) => {
+router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const updateOps = {};
     for (const ops of req.body) {
@@ -95,13 +96,20 @@ router.patch('/:id', (req, res, next) => {
     });
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
-    Order.remove({_id: id}).exec()
+    Order.findById(id).exec()
     .then(result => {
+        return User.update({_id: result.userId}, { $pull: { "orders": result._id } })
+        .exec()
+    })
+    .then(resp => {
+        return Order.remove({_id: id}).exec()
+    })
+    .then(stuff => {
         res.status(200).json({
             message: 'Order deleted',
-            result: result
+            result: stuff
         });
     })
     .catch(err => {

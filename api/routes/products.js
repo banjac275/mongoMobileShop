@@ -1,12 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const multer = require('multer');
+const checkAuth = require('../middleware/check-auth');
+
+const storage = multer.diskStorage({
+    destination(req, file, cb){
+        cb(null, './uploads/');
+    },
+    filename(req, file, cb){
+        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') cb(null, true);
+    else cb(null, false);
+};
+
+const upload = multer({
+    storage: storage, 
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
 
 const Product = require('../models/product');
 
-router.get('/', (req, res, next) => {
+router.get('/', checkAuth, (req, res, next) => {
     Product.find()
-    .select('name type description _id manufacturer released numInStock')
+    .select('picture name type description _id manufacturer released numInStock')
     .exec()
     .then(docs => {
         const response = {
@@ -23,7 +47,7 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, upload.single('picture'), (req, res, next) => {
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -31,7 +55,7 @@ router.post('/', (req, res, next) => {
         description: req.body.description,
         manufacturer: req.body.manufacturer,
         released: req.body.released,
-        //picture: req.body.picture,
+        picture: req.file.path,
         numInStock: req.body.numInStock
     });
     product.save().then(result => {
@@ -45,7 +69,7 @@ router.post('/', (req, res, next) => {
                 description: result.description,
                 manufacturer: result.manufacturer,
                 released: result.released,
-                //picture: req.body.picture,
+                picture: result.picture,
                 numInStock: result.numInStock 
             }
         });
@@ -58,9 +82,10 @@ router.post('/', (req, res, next) => {
     });
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Product.findById(id)
+    .select('picture name type description _id manufacturer released numInStock')
     .exec()
     .then(doc => {
         console.log("From database", doc);
@@ -77,7 +102,7 @@ router.get('/:id', (req, res, next) => {
     });
 });
 
-router.patch('/:id', (req, res, next) => {
+router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const updateOps = {};
     for (const ops of req.body) {
@@ -97,7 +122,7 @@ router.patch('/:id', (req, res, next) => {
     });
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     Product.remove({_id: id}).exec()
     .then(result => {

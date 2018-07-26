@@ -7,7 +7,7 @@ const productSchema = mongoose.Schema({
   description: { type: String },
   manufacturer: { type: String, required: true },
   released: { type: String },
-  //picture: req.body.picture,
+  picture: { type: String, required: true },
   numInStock: { type: Number, required: true }
 });
 
