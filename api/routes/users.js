@@ -186,9 +186,20 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     let arr = ["firstName", "lastName", "email", "password", "accType"];
     const updateOps = {};
-    arr.forEach(el => {
-      if (req.body[el] !== undefined) updateOps[el] = req.body[el];
-    })
+    arr.forEach((el, ind) => {
+      if (req.body[el] !== undefined && ind !== 4) updateOps[el] = req.body[el];
+      else {
+        bcrypt.hash(req.body.password, 10, (err, hash) => {
+          if(err) {
+              return res.status(500).json({
+                  error: err
+              });
+          } else {
+            updateOps[el] = hash;              
+          }
+        });
+      }
+    });
     User.update({_id: id}, {$set: updateOps })
     .exec()
     .then(result => {
