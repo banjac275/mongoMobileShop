@@ -185,8 +185,9 @@ router.get('/:id', checkAuth, (req, res, next) => {
 router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const updateOps = {};
-    for (const ops of req.body) {
-      if (req.body.hasOwnProperty(ops)) updateOps[ops.propName] = ops.value;
+    const temp = req.body;
+    for (const ops of temp) {
+      if (temp.hasOwnProperty(ops)) updateOps[ops.propName] = ops.value;
     }
     User.update({_id: id}, {$set: updateOps })
     .exec()
