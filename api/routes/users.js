@@ -188,7 +188,7 @@ router.patch('/:id', checkAuth, (req, res, next) => {
     const updateOps = {};
     arr.forEach((el, ind) => {
       if (req.body[el] !== undefined && el !== "password") updateOps[el] = req.body[el];
-      else {
+      else if (el === "password") {
         bcrypt.hash(req.body[el], 10, (err, hash) => {
           if(err) {
               return res.status(500).json({
