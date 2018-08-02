@@ -33,7 +33,7 @@ const Order = require('../models/order');
 
 router.get('/', checkAuth, (req, res, next) => {
     User.find()
-    .select('orders firstName lastName email accType password _id')
+    .select('orders picture firstName lastName email accType password _id')
     .populate('orders')
     .exec()
     .then(docs => {

@@ -8,9 +8,7 @@ const productRoutes = require('./api/routes/products');
 const userRoutes = require('./api/routes/users');
 const orderRoutes = require('./api/routes/orders');
 
-mongoose.connect('mongodb+srv://banjac275:'+ 
-process.env.MONGO_ATLAS_PW +
-'@mongo-mobile-shop-j2tp4.mongodb.net/test',
+mongoose.connect('mongodb+srv://banjac275:randombanji@mongo-mobile-shop-j2tp4.mongodb.net/test',
 { useNewUrlParser: true });
 mongoose.Promise = global.Promise;
 
