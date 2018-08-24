@@ -105,9 +105,10 @@ router.get('/:id', checkAuth, (req, res, next) => {
 router.patch('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     const updateOps = {};
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
-    }
+    let arr = ["name", "type", "description", "manufacturer", "released", "picture", "numInStock"];
+    arr.forEach(el => {
+      if (req.body[el] !== undefined) updateOps[el] = req.body[el];
+    });
     Product.update({_id: id}, {$set: updateOps })
     .exec()
     .then(result => {
