@@ -182,40 +182,47 @@ router.get('/:id', checkAuth, (req, res, next) => {
     });
 });
 
-router.patch('/:id', checkAuth, (req, res, next) => {
+router.patch('/:id', checkAuth, upload.single('picture'), (req, res, next) => {
     const id = req.params.id;
-    let arr = ["firstName", "lastName", "email", "password", "passwordNew", "accType"];
+    let arr = ["firstName", "lastName", "email", "accType", "password", "passwordNew"];
     const updateOps = {};
+    if (req.file !== undefined) updateOps["picture"] = req.file.path;
     arr.forEach((el, ind) => {
-      if (req.body[el] !== undefined && el !== "password") updateOps[el] = req.body[el];
-      else if (el === "passwordNew" && req.body["password"] !== req.body[el]) {
-        bcrypt.hash(req.body[el], 10, (err, hash) => {
+      if (req.body[el] !== undefined && el !== "password" && el !== "passwordNew") updateOps[el] = req.body[el];
+      else if (el === "passwordNew" && req.body["passwordNew"] !== undefined) {
+        bcrypt.hash(req.body["passwordNew"], 10, (err, hash) => {
           if(err) {
               return res.status(500).json({
                   error: err
               });
           } else {
-            updateOps["password"] = hash;              
+            updateOps["password"] = hash;
+            updateUser(id, updateOps);            
           }
         });          
     }
     });
-    console.log(updateOps);
-    User.update({_id: id}, {$set: updateOps })
-    .exec()
-    .then(result => {
-        console.log(result);
-        res.status(200).json(result);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            error: err
-        });
-    });
+    if (req.body["passwordNew"] === undefined ) {
+      updateUser(id, updateOps);
+    }
 });
 
-router.patch('/:id/addPicture', checkAuth, upload.single('picture'), (req, res, next) => {
+function updateUser (userId, data) {
+  User.update({_id: userId}, {$set: data })
+      .exec()
+      .then(result => {
+          console.log(result);
+          res.status(200).json(result);
+      })
+      .catch(err => {
+          console.log(err);
+          res.status(500).json({
+              error: err
+          });
+      });
+}
+
+/* router.patch('/:id/addPicture', checkAuth, upload.single('picture'), (req, res, next) => {
     const id = req.params.id;
     User.update({_id: id}, {$set: {"picture": req.file.path } })
     .exec()
@@ -229,7 +236,7 @@ router.patch('/:id/addPicture', checkAuth, upload.single('picture'), (req, res, 
             error: err
         });
     });
-});
+}); */
 
 router.delete('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
