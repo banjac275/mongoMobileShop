@@ -197,26 +197,26 @@ router.patch('/:id', checkAuth, upload.single('picture'), (req, res, next) => {
               });
           } else {
             updateOps["password"] = hash;
-            updateUser(id, updateOps);            
+            updateUser(id, updateOps, res);            
           }
         });          
     }
     });
     if (req.body["passwordNew"] === undefined ) {
-      updateUser(id, updateOps);
+      updateUser(id, updateOps, res);
     }
 });
 
-function updateUser (userId, data) {
+function updateUser (userId, data, resu) {
   User.update({_id: userId}, {$set: data })
       .exec()
       .then(result => {
           console.log(result);
-          res.status(200).json(result);
+          resu.status(200).json(result);
       })
       .catch(err => {
           console.log(err);
-          res.status(500).json({
+          resu.status(500).json({
               error: err
           });
       });
