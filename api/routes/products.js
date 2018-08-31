@@ -47,6 +47,25 @@ router.get('/', checkAuth, (req, res, next) => {
     });
 });
 
+router.get('/find', checkAuth, (req, res, next) => {
+  Product.find({"name": { "$regex": req.body.text, "$options": "i"}})
+  .select('picture name type description _id manufacturer released numInStock')
+  .exec()
+  .then(docs => {
+      const response = {
+          count: docs.length,
+          products: docs
+      };
+      res.status(200).json(response);
+  })
+  .catch(err => {
+      console.log(err);
+      res.status(500).json({
+          error: err
+      });
+  });
+});
+
 router.post('/', checkAuth, upload.single('picture'), (req, res, next) => {
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),

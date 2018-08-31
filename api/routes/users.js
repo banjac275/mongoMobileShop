@@ -166,6 +166,7 @@ router.put('/:id/newOrder', checkAuth, (req, res, next) => {
 router.get('/:id', checkAuth, (req, res, next) => {
     const id = req.params.id;
     User.findById(id)
+    .populate('orders')
     .exec()
     .then(doc => {
         console.log("From database", doc);
