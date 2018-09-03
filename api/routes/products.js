@@ -47,7 +47,7 @@ router.get('/', checkAuth, (req, res, next) => {
     });
 });
 
-router.get('/find', checkAuth, (req, res, next) => {
+router.post('/find', checkAuth, (req, res, next) => {
   Product.find({"name": { "$regex": req.body.text, "$options": "i"}})
   .select('picture name type description _id manufacturer released numInStock')
   .exec()
